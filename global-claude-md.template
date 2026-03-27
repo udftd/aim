@@ -1,0 +1,8 @@
+# 复制到 ~/.claude/CLAUDE.md
+
+@~/.ai-memory/global/USER.md
+
+## AIM Protocol
+- CLAUDE.local.md 存在时记忆已自动注入
+- Session 结束时更新 HANDOFF.md (< 40 行) 和 TODO.md
+- 重要发现 → MEMORY.md，重要决策 → DECISIONS.md
