@@ -90,13 +90,13 @@ fi
 # ── Codex CLI ──
 if ok codex; then
     {
-        echo "# AGENTS.local.md — AIM Bridge"
+        echo "# AGENTS.override.md — AIM Bridge"
         echo "Read at start: $PD/HANDOFF.md and $PD/TODO.md"
         echo "## Protocol"
         echo "$WF"
-    } > "$PP/AGENTS.local.md"
-    gi "AGENTS.local.md"
-    echo -e "  ${G}✓ Codex CLI${N}    AGENTS.local.md"
+    } > "$PP/AGENTS.override.md"
+    gi "AGENTS.override.md"
+    echo -e "  ${G}✓ Codex CLI${N}    AGENTS.override.md"
 fi
 
 # ── Cline ──

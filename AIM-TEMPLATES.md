@@ -354,7 +354,7 @@ tags: []
 # Session 结束说 "更新 handoff"
 ```
 
-### AGENTS.local.md (Codex CLI)
+### AGENTS.override.md (Codex CLI)
 
 ```markdown
 Read at start: ~/.ai-memory/projects/<PROJECT>/HANDOFF.md and TODO.md
