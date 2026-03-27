@@ -40,7 +40,7 @@ if [ -f "$PD/HANDOFF.md" ] && [ -d "$PD/modules" ]; then
         if [ -f "$CTX" ]; then
             # 检查是否还是空模板 (只有 TODO 标记)
             real_content=$(grep -v '^\s*$\|^#\|^-\|^\[TODO\]\|^(待积累)\|^---' "$CTX" 2>/dev/null | head -1)
-            has_todo=$(grep -c '\[TODO\]' "$CTX" 2>/dev/null || echo 0)
+            has_todo=$(grep -c '\[TODO\]' "$CTX" 2>/dev/null); has_todo=${has_todo:-0}
 
             if [ -z "$real_content" ] || [ "$has_todo" -gt 2 ]; then
                 echo ""
@@ -68,20 +68,20 @@ fi
 
 # FEATURES 进度
 if [ -f "$PD/FEATURES.md" ]; then
-    total=$(grep -c '^\- \[' "$PD/FEATURES.md" 2>/dev/null || echo 0)
-    done=$(grep -c '^\- \[x\]' "$PD/FEATURES.md" 2>/dev/null || echo 0)
+    total=$(grep -c '^\- \[' "$PD/FEATURES.md" 2>/dev/null); total=${total:-0}
+    done=$(grep -c '^\- \[x\]' "$PD/FEATURES.md" 2>/dev/null); done=${done:-0}
     echo "  📊 FEATURES: $done/$total"
 fi
 
 # SESSION-LOG 溢出
 if [ -f "$PD/sessions/SESSION-LOG.md" ]; then
-    entries=$(grep -c '^---$' "$PD/sessions/SESSION-LOG.md" 2>/dev/null || echo 0)
+    entries=$(grep -c '^---$' "$PD/sessions/SESSION-LOG.md" 2>/dev/null); entries=${entries:-0}
     entries=$(( entries / 2 ))
     [ "$entries" -gt 10 ] && echo "" && echo "  📦 SESSION-LOG: ${entries} 条 (上限 10) → aim-archive.sh $P"
 fi
 
 # TODO 完成项
 if [ -f "$PD/TODO.md" ]; then
-    done_n=$(grep -c '^\- \[x\]' "$PD/TODO.md" 2>/dev/null || echo 0)
+    done_n=$(grep -c '^\- \[x\]' "$PD/TODO.md" 2>/dev/null); done_n=${done_n:-0}
     [ "$done_n" -gt 5 ] && echo "  🧹 TODO: ${done_n} 个完成项 (保留 5 个)"
 fi
