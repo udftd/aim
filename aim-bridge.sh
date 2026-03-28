@@ -82,7 +82,7 @@ if ok claude; then
         echo "# @$AIM/global/USER.md"
         echo ""
         echo "# ── 工作流 ──"
-        echo "# $WF"
+        echo "$WF"
     } > "$F"
     gi "CLAUDE.local.md"
     echo -e "  ${G}✓ Claude Code${N}  CLAUDE.local.md"

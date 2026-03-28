@@ -119,13 +119,11 @@ AI_MEMORY_ROOT=~/.ai-memory   # 覆盖默认存储路径
   aim-layer.sh <project> --full      # 全开
   aim-layer.sh <project> --minimal   # 只留 L0
   ```
-- [ ] **优雅升级机制**：当前 `aim-init.sh` 可以幂等更新 `bin/` 脚本，但存在几个缺口：无版本号、桥接文件重新生成会覆盖用户定制（如手动取消注释的层级）、模板变更不传播到已有项目。计划新增 `aim-upgrade.sh`，安全更新脚本并提示不兼容变更。
-  - 覆盖 `bin/*.sh`（安全，纯逻辑无状态）
-  - 桥接文件：层级状态改为配置驱动（依赖 `aim-layer.sh`），避免重建时丢失定制
-  - 项目模板：检测已有项目与新模板的差异，提示用户手动 merge
+- [x] **升级机制**：已实现 `aim-upgrade.sh`，支持 `--check`、`--force`、`--source`。`VERSION` + `.aim-meta` 追踪版本，`CHANGELOG.md` 记录变更。`aim-init.sh` 改为 glob 匹配自动发现新脚本。
   ```bash
-  aim-upgrade.sh              # 更新 bin/ 脚本，显示 changelog
-  aim-upgrade.sh --check      # 只检查版本差异，不更新
+  bash aim-upgrade.sh              # 版本不同时升级
+  bash aim-upgrade.sh --force      # 强制更新（开发阶段常用）
+  bash aim-upgrade.sh --check      # 只检查，不执行
   ```
 
 ## 依赖
