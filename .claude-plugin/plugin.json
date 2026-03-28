@@ -1,0 +1,17 @@
+{
+  "name": "aim",
+  "description": "AIM (AI Memory) skills — persistent, structured memory for AI tools across sessions",
+  "version": "0.2.0",
+  "author": {
+    "name": "feiyang"
+  },
+  "repository": "https://github.com/feiyang/aim",
+  "license": "MIT",
+  "keywords": [
+    "memory",
+    "context",
+    "sessions",
+    "handoff",
+    "skills"
+  ]
+}
