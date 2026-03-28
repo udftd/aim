@@ -44,7 +44,8 @@ gi() { [ -f "$PP/.gitignore" ] && ! grep -qxF "$1" "$PP/.gitignore" 2>/dev/null 
 # ── 工作流指令 (所有桥接文件共享) ──
 WF='Session 结束时说 "更新 handoff":
 - 覆盖 HANDOFF.md (< 40 行, 只写状态不写过程)
-- 更新 TODO.md checklist'
+- 更新 TODO.md checklist
+- 追加 sessions/SESSION-LOG.md (≤ 5 行, 格式: ---/s: 日期时间/ai: 工具名/mod: 模块/---/摘要)'
 
 if $HAS_MODS; then
     WF="$WF

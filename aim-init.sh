@@ -55,9 +55,18 @@ E
 E
 
     local SD; SD="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    for s in aim-init.sh aim-bridge.sh aim-start.sh aim-end.sh aim-archive.sh aim-search.sh aim-add-module.sh; do
-        [ -f "$SD/$s" ] && cp "$SD/$s" "$AIM/bin/$s" && chmod +x "$AIM/bin/$s"
+    for s in "$SD"/aim-*.sh; do
+        [ -f "$s" ] || continue
+        [ "$(basename "$s")" = "aim-upgrade.sh" ] && continue
+        cp "$s" "$AIM/bin/$(basename "$s")" && chmod +x "$AIM/bin/$(basename "$s")"
     done
+    [ -f "$SD/aim_loader.py" ] && cp "$SD/aim_loader.py" "$AIM/bin/aim_loader.py"
+
+    cat > "$AIM/.aim-meta" << EOF
+version=$(cat "$SD/VERSION" 2>/dev/null || echo "0.0")
+source=$SD
+installed=$(date +%Y-%m-%d)
+EOF
 
     echo -e "${G}✅ 全局系统已初始化${N}"
     echo "  export PATH=\"$AIM/bin:\$PATH\""
