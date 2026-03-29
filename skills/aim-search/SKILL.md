@@ -15,10 +15,13 @@ Search across AIM memory files and interpret the results in context.
 
 ## Resolve AIM bin path
 
-1. `~/.ai-memory/bin/` (if installed globally)
-2. The directory containing this plugin's shell scripts (the repo root)
+Find the AIM scripts directory. Check in order, use the first that exists:
+1. `~/.ai-memory/bin/` — standard install location
+2. Run `which aim-init.sh` — if it's on PATH
 
-Store as `$AIM_BIN`.
+If neither works, tell the user: "AIM scripts not found. Run `/aim-onboard` first."
+
+Store the resolved directory as `$AIM_BIN`.
 
 ## Workflow
 

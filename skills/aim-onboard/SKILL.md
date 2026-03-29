@@ -7,15 +7,15 @@ description: "Use when setting up AIM memory for a new project, onboarding to a 
 
 One-command setup: creates AIM project, auto-fills PROJECT.md, generates bridge files, and discovers modules.
 
-## Prerequisites
+## Resolve AIM bin path
 
-The AIM scripts must be installed. Check for `~/.ai-memory/bin/aim-init.sh` or the repo at the path where this skill lives.
+Find the AIM scripts directory. Check in order, use the first that exists:
+1. `~/.ai-memory/bin/` — standard install location
+2. Run `which aim-init.sh` — if it's on PATH
 
-To find the AIM script directory, use this resolution order:
-1. `~/.ai-memory/bin/` (if installed globally)
-2. The directory containing this plugin's `aim-init.sh` (the repo root)
+If neither works, tell the user: "AIM scripts not found. Run `bash aim-init.sh` from the AIM repo first."
 
-Store the resolved path as `$AIM_BIN` for all subsequent commands.
+Store the resolved directory as `$AIM_BIN` for all subsequent commands.
 
 ## Workflow
 
