@@ -64,21 +64,11 @@ Web:   aim-start.sh → 复制到剪贴板 → 粘贴给网页版 AI
         └── <mod>/CONTEXT.md
 ```
 
-## 分层加载
+## 上下文加载
 
-按需加载，控制 token 开销：
+`CLAUDE.local.md` 默认只加载 HANDOFF.md + TODO.md（~800 tok），保持 context 精简。
 
-| 层级 | 内容 | Token | 用途 |
-|------|------|-------|------|
-| L0 | HANDOFF + TODO | ~800 | 每次默认加载 |
-| L1 | 模块 CONTEXT.md | ~500 | 涉及特定模块时 |
-| L2 | MEMORY.md | ~2000 | 需要项目背景时 |
-| L3 | DECISIONS / FEATURES | ~1000 | 架构讨论时 |
-| L4 | USER / TOOLS | ~400 | 切换 AI 工具时 |
-
-分层状态由 `~/.ai-memory/projects/<project>/LAYER_STATE.json` 决定。`CLAUDE.local.md` 中只有裸露的 `@path` 会被导入；未启用层使用 `<!-- inactive import: ... -->` 占位。`AGENTS.override.md` 会按当前状态直接展开最终内容。
-
-每 session 平均开销：~$0.014（Sonnet）
+模块上下文由 `/aim-module` skill 按需切换加载。其他记忆文件（MEMORY.md、DECISIONS.md 等）AI 可按需 Read，无需预加载。
 
 ## 支持的 AI 工具
 
@@ -110,38 +100,10 @@ aim-add-module.sh <project> <module>        # 添加子模块
 AI_MEMORY_ROOT=~/.ai-memory   # 覆盖默认存储路径
 ```
 
-分层状态示例：
-
-```json
-{
-  "module": "api-server",
-  "layers": ["memory", "decisions"]
-}
-```
-
-修改状态后，重新生成桥接文件即可同步到 Claude / Codex：
-
-```bash
-aim-bridge.sh <project> <repo-path> --tools claude,codex
-```
-
 ## TODO
 
-- [x] **Codex 分层记忆加载**：`AGENTS.override.md` 已改为按 `LAYER_STATE.json` 展开当前激活层，和 `CLAUDE.local.md` 共享同一份状态。
-- [x] **Skill 跨工具兼容**：AIM skills 现已优先识别 `AGENTS.override.md`，回退 `CLAUDE.local.md`，兼容 Codex / Claude 双桥接场景。
-- [ ] **多层记忆加载优化**：当前共享状态已经统一到 `LAYER_STATE.json`，但切换层级/模块仍需手动编辑状态文件后重新运行 `aim-bridge.sh`。计划新增 `aim-layer.sh` 命令，支持快速切换加载层级和模块。
-  ```bash
-  aim-layer.sh <project> L2          # 启用 L2
-  aim-layer.sh <project> L1 auth     # 切到 auth 模块
-  aim-layer.sh <project> --full      # 全开
-  aim-layer.sh <project> --minimal   # 只留 L0
-  ```
-- [x] **升级机制**：已实现 `aim-upgrade.sh`，支持 `--check`、`--force`、`--source`。`VERSION` + `.aim-meta` 追踪版本，`CHANGELOG.md` 记录变更。`aim-init.sh` 改为 glob 匹配自动发现新脚本。
-  ```bash
-  bash aim-upgrade.sh              # 版本不同时升级
-  bash aim-upgrade.sh --force      # 强制更新（开发阶段常用）
-  bash aim-upgrade.sh --check      # 只检查，不执行
-  ```
+- [x] **升级机制**：已实现 `aim-upgrade.sh`，支持 `--check`、`--force`、`--source`。
+- [x] **Skill 跨工具兼容**：AIM skills 兼容 Codex / Claude 双桥接场景。
 
 ## 依赖
 

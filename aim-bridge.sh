@@ -88,31 +88,11 @@ if ok claude; then
     {
         echo "# CLAUDE.local.md — AIM Bridge"
         echo ""
-        echo "# ── L0: 每次 (~800 tok) ──"
         echo "@$PD/HANDOFF.md"
         echo "@$PD/TODO.md"
-        if $HAS_MODS; then
-            echo ""
-            echo "# ── L1: 模块 (切换时改, 同时只启用一个) ──"
-            for m in $MODS; do
-                if [ "$m" = "$ACTIVE_MODULE" ]; then
-                    echo "@$PD/modules/$m/CONTEXT.md"
-                else
-                    echo "<!-- inactive import: $PD/modules/$m/CONTEXT.md -->"
-                fi
-            done
+        if $HAS_MODS && [ -n "$ACTIVE_MODULE" ]; then
+            echo "@$PD/modules/$ACTIVE_MODULE/CONTEXT.md"
         fi
-        echo ""
-        echo "# ── L2: 背景 ──"
-        if has_layer memory; then echo "@$PD/MEMORY.md"; else echo "<!-- inactive import: $PD/MEMORY.md -->"; fi
-        echo ""
-        echo "# ── L3: 架构/特性 ──"
-        if has_layer decisions; then echo "@$PD/DECISIONS.md"; else echo "<!-- inactive import: $PD/DECISIONS.md -->"; fi
-        if has_layer features; then echo "@$PD/FEATURES.md"; else echo "<!-- inactive import: $PD/FEATURES.md -->"; fi
-        echo ""
-        echo "# ── L4: 切换 AI 时 ──"
-        if has_layer user; then echo "@$AIM/global/USER.md"; else echo "<!-- inactive import: $AIM/global/USER.md -->"; fi
-        if has_layer tools; then echo "@$AIM/global/TOOLS.md"; else echo "<!-- inactive import: $AIM/global/TOOLS.md -->"; fi
         echo ""
         echo "# ── 工作流 ──"
         echo "$WF"
