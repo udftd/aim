@@ -76,7 +76,7 @@ Web:   aim-start.sh → 复制到剪贴板 → 粘贴给网页版 AI
 | L3 | DECISIONS / FEATURES | ~1000 | 架构讨论时 |
 | L4 | USER / TOOLS | ~400 | 切换 AI 工具时 |
 
-在 `CLAUDE.local.md` 中取消注释对应行即可升级加载层级。
+分层状态由 `~/.ai-memory/projects/<project>/LAYER_STATE.json` 决定。`CLAUDE.local.md` 中只有裸露的 `@path` 会被导入；未启用层使用 `<!-- inactive import: ... -->` 占位。`AGENTS.override.md` 会按当前状态直接展开最终内容。
 
 每 session 平均开销：~$0.014（Sonnet）
 
@@ -110,9 +110,26 @@ aim-add-module.sh <project> <module>        # 添加子模块
 AI_MEMORY_ROOT=~/.ai-memory   # 覆盖默认存储路径
 ```
 
+分层状态示例：
+
+```json
+{
+  "module": "api-server",
+  "layers": ["memory", "decisions"]
+}
+```
+
+修改状态后，重新生成桥接文件即可同步到 Claude / Codex：
+
+```bash
+aim-bridge.sh <project> <repo-path> --tools claude,codex
+```
+
 ## TODO
 
-- [ ] **多层记忆加载优化**：当前 `CLAUDE.local.md` 中 L1–L4 层级需要手动编辑注释来切换，自动化程度不足。计划新增 `aim-layer.sh` 命令，支持快速切换加载层级和模块，无需手动编辑桥接文件。
+- [x] **Codex 分层记忆加载**：`AGENTS.override.md` 已改为按 `LAYER_STATE.json` 展开当前激活层，和 `CLAUDE.local.md` 共享同一份状态。
+- [x] **Skill 跨工具兼容**：AIM skills 现已优先识别 `AGENTS.override.md`，回退 `CLAUDE.local.md`，兼容 Codex / Claude 双桥接场景。
+- [ ] **多层记忆加载优化**：当前共享状态已经统一到 `LAYER_STATE.json`，但切换层级/模块仍需手动编辑状态文件后重新运行 `aim-bridge.sh`。计划新增 `aim-layer.sh` 命令，支持快速切换加载层级和模块。
   ```bash
   aim-layer.sh <project> L2          # 启用 L2
   aim-layer.sh <project> L1 auth     # 切到 auth 模块

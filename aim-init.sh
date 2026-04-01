@@ -86,6 +86,13 @@ init_project() {
 
     mkdir -p "$PD/sessions/archive"
 
+    cat > "$PD/LAYER_STATE.json" << EOF
+{
+  "module": null,
+  "layers": []
+}
+EOF
+
     # ── PROJECT.md ──
     cat > "$PD/PROJECT.md" << EOF
 # Project: $P

@@ -5,14 +5,15 @@ description: "Use when studying, exploring, or diving into a specific module, or
 
 # AIM Module — Deep Dive into a Module
 
-Add a new module or switch focus to an existing one: creates/updates CONTEXT.md, switches the L1 layer in CLAUDE.local.md, and explores the module source code.
+Add a new module or switch focus to an existing one: creates/updates CONTEXT.md, switches the shared L1 state, regenerates bridge files, and explores the module source code.
 
 ## Resolve Project
 
-1. Read `CLAUDE.local.md` in the current directory. Extract the AIM project name from `@~/.ai-memory/projects/<PROJECT>/` paths.
-2. If not found, **default to `$(basename $PWD)`**.
-3. Set `$PD = ~/.ai-memory/projects/<project>`.
-4. Verify `$PD/modules/` exists. If not, tell user this project was not created with `--large` and offer to create the modules directory.
+1. Read `AGENTS.override.md` in the current directory. If it contains a `generated from ~/.ai-memory/projects/<PROJECT>/` or `source: ~/.ai-memory/projects/<PROJECT>/` path, extract the AIM project name.
+2. If not found, read `CLAUDE.local.md` in the current directory and extract the AIM project name from `@~/.ai-memory/projects/<PROJECT>/` paths.
+3. If neither bridge file identifies the project, **default to `$(basename $PWD)`**.
+4. Set `$PD = ~/.ai-memory/projects/<project>`.
+5. Verify `$PD/modules/` exists. If not, tell user this project was not created with `--large` and offer to create the modules directory.
 
 ## Resolve AIM bin path
 
@@ -20,7 +21,7 @@ Find the AIM scripts directory. Check in order, use the first that exists:
 1. `~/.ai-memory/bin/` — standard install location
 2. Run `which aim-init.sh` — if it's on PATH
 
-If neither works, tell the user: "AIM scripts not found. Run `/aim-onboard` first."
+If neither works, tell the user: "AIM scripts not found. Run the aim-onboard workflow first."
 
 Store the resolved directory as `$AIM_BIN`.
 
@@ -39,16 +40,13 @@ Store the resolved directory as `$AIM_BIN`.
 bash $AIM_BIN/aim-add-module.sh <project> <module>
 ```
 
-### Step 3: Switch L1 layer in CLAUDE.local.md
+### Step 3: Switch shared L1 state
 
-Read `CLAUDE.local.md` in the project source directory. Then:
+Read `~/.ai-memory/projects/<project>/LAYER_STATE.json`. Then:
 
-1. **Comment out** all currently active module lines (lines starting with `@` that contain `/modules/`)
-2. **Uncomment** the target module's line (remove the `# ` prefix from the line containing `/modules/<module>/CONTEXT.md`)
-3. If the target module line doesn't exist in CLAUDE.local.md (e.g., module was added after bridge), **add** it in the L1 section:
-   ```
-   @~/.ai-memory/projects/<project>/modules/<module>/CONTEXT.md
-   ```
+1. Set `"module"` to `<module>`
+2. Preserve existing `"layers"` values
+3. Re-run `aim-bridge.sh <project> <project-path> --tools claude,codex`
 
 Use the Edit tool for precise modifications.
 
@@ -108,7 +106,8 @@ Read `$PD/modules/_INDEX.md` and update the module's row:
 ```
 Module "<module>" activated:
   - CONTEXT.md: <filled/updated>
-  - CLAUDE.local.md: L1 switched to <module>
+  - LAYER_STATE.json: module switched to <module>
+  - CLAUDE.local.md / AGENTS.override.md: regenerated
   - _INDEX.md: updated
 
 Key findings:
@@ -124,6 +123,6 @@ Suggestions:
 
 ## Notes
 
-- Only ONE module should be active (uncommented) in CLAUDE.local.md at a time
-- CONTEXT.md grows incrementally across sessions — each `/aim-module` call adds knowledge
+- Only ONE module should be active in `LAYER_STATE.json` at a time
+- CONTEXT.md grows incrementally across sessions — each aim-module run adds knowledge
 - For the first exploration, focus on breadth (what it does, key areas). Depth comes from actual work.

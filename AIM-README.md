@@ -91,7 +91,15 @@ L3  DECISIONS / FEATURES        ~1000 tok  架构讨论时
 L4  USER / TOOLS                ~400 tok   切换 AI 时
 ```
 
-默认只加载 L0。CLAUDE.local.md 里用 `#` 注释控制层级。
+默认只加载 L0。项目当前分层状态记录在 `LAYER_STATE.json`；`CLAUDE.local.md` 根据状态激活 `@path`，`AGENTS.override.md` 根据状态直接展开正文。
+
+修改 `LAYER_STATE.json` 后，重新运行：
+
+```bash
+aim-bridge.sh <project> <repo-path> --tools claude,codex
+```
+
+即可同步刷新 Claude / Codex 的当前激活层。
 
 每 session AIM 开销: ~$0.014 (Sonnet) | 日均 ~$0.075 | 占 Claude Code 日均 ~1%
 
@@ -100,12 +108,21 @@ L4  USER / TOOLS                ~400 tok   切换 AI 时
 | 工具 | 桥接文件 | 方式 |
 |------|---------|------|
 | Claude Code | CLAUDE.local.md | @import 自动 |
-| Codex CLI | AGENTS.local.md | 引用 |
+| Codex CLI | AGENTS.override.md | 展开当前激活层 |
 | Cline / Roo Code | .clinerules / .roo/rules | symlink 自动 |
 | Cursor | .cursor/rules/*.mdc | symlink 自动 |
 | Copilot | .github/copilot-instructions.md | symlink |
 | Web AI (Kimi/DeepSeek/GPT) | aim-start.sh | 剪贴板粘贴 |
 | 自建 API | aim_loader.py | system prompt |
+
+## Skills
+
+AIM 自带的 skills 现在按双桥接兼容设计：
+- 优先从 `AGENTS.override.md` 解析当前项目
+- 回退到 `CLAUDE.local.md`
+- 最后才 fallback 到 `$(basename $PWD)`
+
+这样同一套 skill 说明可同时服务 Codex / Claude。
 
 ## 全部脚本
 

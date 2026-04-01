@@ -35,7 +35,7 @@ Web:   aim-start.sh <p> → 粘贴 → 工作 → 复制 handoff → 覆盖
 
 ## HANDOFF: < 40行 | 状态快照不写过程
 
-## 分层: L0 默认 ~800tok | 取消 # 注释升级
+## 分层: 改 `LAYER_STATE.json` 后重新跑 `aim-bridge.sh`
 
 ## 经济性: ~$0.014/session | 日均 ~$0.075
 

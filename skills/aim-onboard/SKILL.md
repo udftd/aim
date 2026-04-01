@@ -96,7 +96,7 @@ If the project was created with `--large`:
 bash $AIM_BIN/aim-add-module.sh <project> <module-name>
 ```
 
-5. Do NOT auto-fill CONTEXT.md at this stage — that is the job of `/aim-module`
+5. Do NOT auto-fill CONTEXT.md at this stage — that is the job of the aim-module workflow
 
 ### Step 7: Summary
 
@@ -110,9 +110,9 @@ AIM project "<name>" initialized:
 
 Next steps:
   - Review PROJECT.md: ~/.ai-memory/projects/<name>/PROJECT.md
-  - (If large) Deep-dive modules: /aim-module <module-name>
-  - Start working — memory auto-loads via CLAUDE.local.md
-  - End session: /aim-session-end
+  - (If large) Deep-dive modules: run the aim-module workflow for <module-name>
+  - Start working — memory auto-loads via bridge files (`CLAUDE.local.md` / `AGENTS.override.md`)
+  - End session: run the aim-session-end workflow
 ```
 
 ## Error Handling

@@ -9,9 +9,10 @@ Search across AIM memory files and interpret the results in context.
 
 ## Resolve Project
 
-1. Read `CLAUDE.local.md` in the current directory. Extract the AIM project name from `@~/.ai-memory/projects/<PROJECT>/` paths.
-2. If not found, **default to `$(basename $PWD)`**.
-3. If user says "search all" or "global search", search across all projects (omit the project argument).
+1. Read `AGENTS.override.md` in the current directory. If it contains a `generated from ~/.ai-memory/projects/<PROJECT>/` or `source: ~/.ai-memory/projects/<PROJECT>/` path, extract the AIM project name.
+2. If not found, read `CLAUDE.local.md` in the current directory and extract the AIM project name from `@~/.ai-memory/projects/<PROJECT>/` paths.
+3. If neither bridge file identifies the project, **default to `$(basename $PWD)`**.
+4. If user says "search all" or "global search", search across all projects (omit the project argument).
 
 ## Resolve AIM bin path
 
@@ -19,7 +20,7 @@ Find the AIM scripts directory. Check in order, use the first that exists:
 1. `~/.ai-memory/bin/` — standard install location
 2. Run `which aim-init.sh` — if it's on PATH
 
-If neither works, tell the user: "AIM scripts not found. Run `/aim-onboard` first."
+If neither works, tell the user: "AIM scripts not found. Run the aim-onboard workflow first."
 
 Store the resolved directory as `$AIM_BIN`.
 

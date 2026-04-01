@@ -10,6 +10,8 @@
 # aim-start.sh <project> --budget 2000            硬限 token 数
 
 AIM="${AI_MEMORY_ROOT:-$HOME/.ai-memory}"
+SD="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LOADER="$SD/aim_loader.py"
 P=""; MOD=""; WITH=""; BUDGET=0
 
 while [[ $# -gt 0 ]]; do
@@ -30,48 +32,41 @@ fi
 PD="$AIM/projects/$P"
 [ ! -d "$PD" ] && echo "❌ $P 不存在" && exit 1
 
-FILES=()
-FILES+=("$PD/HANDOFF.md")
-FILES+=("$PD/TODO.md")
-[ -n "$MOD" ] && [ -f "$PD/modules/$MOD/CONTEXT.md" ] && FILES+=("$PD/modules/$MOD/CONTEXT.md")
+RENDER_ARGS=(render "$P" --format plain --budget "$BUDGET")
+PROTO_MODULE="$MOD"
+USING_STATE=true
+
+if [ -n "$MOD" ]; then
+    USING_STATE=false
+    RENDER_ARGS+=(--module "$MOD" --no-state)
+fi
 
 case "$WITH" in
-    memory)    [ -f "$PD/MEMORY.md" ] && FILES+=("$PD/MEMORY.md");;
-    decisions) [ -f "$PD/DECISIONS.md" ] && FILES+=("$PD/DECISIONS.md");;
+    memory)
+        USING_STATE=false
+        RENDER_ARGS+=(--layers memory --no-state)
+        ;;
+    decisions)
+        USING_STATE=false
+        RENDER_ARGS+=(--layers decisions --no-state)
+        ;;
     full)
-        [ -f "$PD/MEMORY.md" ] && FILES+=("$PD/MEMORY.md")
-        [ -f "$PD/DECISIONS.md" ] && FILES+=("$PD/DECISIONS.md")
-        [ -f "$PD/FEATURES.md" ] && FILES+=("$PD/FEATURES.md")
-        [ -f "$AIM/global/USER.md" ] && FILES+=("$AIM/global/USER.md")
+        USING_STATE=false
+        RENDER_ARGS+=(--layers memory,decisions,features,user,tools --no-state)
         ;;
 esac
 
-O=""; TOTAL=0
-for f in "${FILES[@]}"; do
-    [ ! -f "$f" ] && continue
-    CONTENT=$(cat "$f")
-    if [ "$BUDGET" -gt 0 ]; then
-        TOKS=$(( ${#CONTENT} / 4 ))
-        if [ $(( TOTAL + TOKS )) -gt "$BUDGET" ]; then
-            O+=$'\n'"# [$(basename "$f") skipped: over budget]"$'\n'
-            continue
-        fi
-        TOTAL=$(( TOTAL + TOKS ))
-    fi
-    O+="$CONTENT"$'\n\n---\n\n'
-done
+O="$(python3 "$LOADER" "${RENDER_ARGS[@]}")"
+
+if $USING_STATE; then
+    PROTO_MODULE="$(python3 "$LOADER" state "$P" module)"
+fi
 
 # Session Protocol (模块感知)
-O+='# Session Protocol
-- 结束时说 "更新 handoff" (固定格式, < 40 行)'
-if [ -n "$MOD" ]; then
-    O+=$'\n'"- 本次涉及模块 $MOD，同时更新 modules/$MOD/CONTEXT.md:"
-    O+=$'\n'"  - \"我的理解\": 本次搞清楚了什么"
-    O+=$'\n'"  - \"踩坑\": 遇到的问题"
-    O+=$'\n'"  - \"关键区域\": 重要代码位置"
-    O+=$'\n'"  - 只追加新内容，不重写"
+if [ -n "$PROTO_MODULE" ]; then
+    printf -v O '%s\n- 本次涉及模块 %s，同时更新 modules/%s/CONTEXT.md:\n  - "我的理解": 本次搞清楚了什么\n  - "踩坑": 遇到的问题\n  - "关键区域": 重要代码位置\n  - 只追加新内容，不重写' \
+        "$O" "$PROTO_MODULE" "$PROTO_MODULE"
 fi
-O+=$'\n'"- 如有重要发现请一并输出"
 
 echo "$O"
 
@@ -81,6 +76,10 @@ elif command -v xclip &>/dev/null; then echo "$O" | xclip -selection clipboard
 elif command -v xsel &>/dev/null; then echo "$O" | xsel --clipboard; fi
 
 echo "" >&2
-echo "📋 ~${ETOK} tokens | ${#FILES[@]} files" >&2
-[ -n "$MOD" ] && echo "🏗️  模块 $MOD: session 结束会提醒更新 CONTEXT.md" >&2
-[ "$BUDGET" -gt 0 ] && echo "💰 budget: ${TOTAL}/${BUDGET}" >&2
+echo "📋 ~${ETOK} tokens" >&2
+if [ -n "$PROTO_MODULE" ]; then
+    echo "🏗️  模块 $PROTO_MODULE: session 结束会提醒更新 CONTEXT.md" >&2
+fi
+if [ "$BUDGET" -gt 0 ]; then
+    echo "💰 budget: hard limit ${BUDGET}" >&2
+fi

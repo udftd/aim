@@ -3,6 +3,8 @@
 # aim-bridge.sh <project> [path] [--tools claude,codex,cline,roo,cursor,copilot,all]
 set -e
 AIM="${AI_MEMORY_ROOT:-$HOME/.ai-memory}"
+SD="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LOADER="$SD/aim_loader.py"
 G='\033[0;32m' C='\033[0;36m' Y='\033[1;33m' R='\033[0;31m' D='\033[2m' N='\033[0m'
 
 P="$1"; PP="${2:-.}"; T=""
@@ -19,6 +21,7 @@ if [ -z "$P" ]; then
 fi
 
 PD="$AIM/projects/$P"
+STATE="$PD/LAYER_STATE.json"
 
 if [ ! -d "$PD" ]; then
     echo -e "${Y}⚠️  AIM 项目 '$P' 不存在${N}"
@@ -32,14 +35,37 @@ for f in HANDOFF.md TODO.md MEMORY.md; do
 done
 [ -n "$MISSING" ] && echo -e "${R}❌ '$P' 缺少:$MISSING${N}" && exit 1
 
+[ -f "$STATE" ] || cat > "$STATE" << 'EOF'
+{
+  "module": null,
+  "layers": []
+}
+EOF
+
 MODS=$(find "$PD/modules" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | xargs -I{} basename {} | sort)
 HAS_MODS=false; [ -n "$MODS" ] && HAS_MODS=true
+ACTIVE_MODULE="$(python3 "$LOADER" state "$P" module)"
+mapfile -t ACTIVE_LAYERS < <(python3 "$LOADER" state "$P" layers)
+
+has_layer() {
+    local target="$1"
+    local layer
+    for layer in "${ACTIVE_LAYERS[@]}"; do
+        [ "$layer" = "$target" ] && return 0
+    done
+    return 1
+}
 
 echo -e "${C}🔗 AIM bridge: $P${N}"
 echo -e "${D}   项目: $(cd "$PP" 2>/dev/null && pwd)  记忆: $PD${N}"
+echo -e "${D}   状态: module=${ACTIVE_MODULE:-none} layers=${ACTIVE_LAYERS[*]:-none}${N}"
 
 ok() { [[ "$T" == "all" ]] || [[ ",$T," == *",$1,"* ]]; }
-gi() { [ -f "$PP/.gitignore" ] && ! grep -qxF "$1" "$PP/.gitignore" 2>/dev/null && echo "$1" >> "$PP/.gitignore"; }
+gi() {
+    [ -f "$PP/.gitignore" ] || return 0
+    grep -qxF "$1" "$PP/.gitignore" 2>/dev/null && return 0
+    echo "$1" >> "$PP/.gitignore"
+}
 
 # ── 工作流指令 (所有桥接文件共享) ──
 WF='Session 结束时说 "更新 handoff":
@@ -68,18 +94,25 @@ if ok claude; then
         if $HAS_MODS; then
             echo ""
             echo "# ── L1: 模块 (切换时改, 同时只启用一个) ──"
-            for m in $MODS; do echo "# @$PD/modules/$m/CONTEXT.md"; done
+            for m in $MODS; do
+                if [ "$m" = "$ACTIVE_MODULE" ]; then
+                    echo "@$PD/modules/$m/CONTEXT.md"
+                else
+                    echo "<!-- inactive import: $PD/modules/$m/CONTEXT.md -->"
+                fi
+            done
         fi
         echo ""
         echo "# ── L2: 背景 ──"
-        echo "# @$PD/MEMORY.md"
+        if has_layer memory; then echo "@$PD/MEMORY.md"; else echo "<!-- inactive import: $PD/MEMORY.md -->"; fi
         echo ""
         echo "# ── L3: 架构/特性 ──"
-        echo "# @$PD/DECISIONS.md"
-        echo "# @$PD/FEATURES.md"
+        if has_layer decisions; then echo "@$PD/DECISIONS.md"; else echo "<!-- inactive import: $PD/DECISIONS.md -->"; fi
+        if has_layer features; then echo "@$PD/FEATURES.md"; else echo "<!-- inactive import: $PD/FEATURES.md -->"; fi
         echo ""
         echo "# ── L4: 切换 AI 时 ──"
-        echo "# @$AIM/global/USER.md"
+        if has_layer user; then echo "@$AIM/global/USER.md"; else echo "<!-- inactive import: $AIM/global/USER.md -->"; fi
+        if has_layer tools; then echo "@$AIM/global/TOOLS.md"; else echo "<!-- inactive import: $AIM/global/TOOLS.md -->"; fi
         echo ""
         echo "# ── 工作流 ──"
         echo "$WF"
@@ -92,7 +125,10 @@ fi
 if ok codex; then
     {
         echo "# AGENTS.override.md — AIM Bridge"
-        echo "Read at start: $PD/HANDOFF.md and $PD/TODO.md"
+        echo "> generated from $STATE"
+        echo ""
+        python3 "$LOADER" render "$P" --format codex
+        echo ""
         echo "## Protocol"
         echo "$WF"
     } > "$PP/AGENTS.override.md"
@@ -167,7 +203,8 @@ fi
 echo -e "\n${G}✅ 桥接完成${N}"
 if $HAS_MODS; then
     echo -e "${D}🏗️  modules/: $MODS${N}"
-    echo -e "${D}   编辑 CLAUDE.local.md 取消注释当前模块${N}"
+    echo -e "${D}   当前激活模块: ${ACTIVE_MODULE:-none}${N}"
     echo -e "${D}   session 结束时 AI 会同时更新模块 CONTEXT.md${N}"
 fi
+echo -e "${D}   分层状态文件: $STATE${N}"
 echo -e "${Y}💡 下次打开 AI 工具时记忆自动加载${N}"

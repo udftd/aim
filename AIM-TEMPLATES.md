@@ -344,20 +344,34 @@ tags: []
 @~/.ai-memory/projects/<PROJECT>/HANDOFF.md
 @~/.ai-memory/projects/<PROJECT>/TODO.md
 # ── L1: 模块 (切换时改) ──
-# @~/.ai-memory/projects/<PROJECT>/modules/<MOD>/CONTEXT.md
+<!-- inactive import: ~/.ai-memory/projects/<PROJECT>/modules/<MOD>/CONTEXT.md -->
 # ── L2: 背景 ──
-# @~/.ai-memory/projects/<PROJECT>/MEMORY.md
+<!-- inactive import: ~/.ai-memory/projects/<PROJECT>/MEMORY.md -->
 # ── L3: 架构 ──
-# @~/.ai-memory/projects/<PROJECT>/DECISIONS.md
+<!-- inactive import: ~/.ai-memory/projects/<PROJECT>/DECISIONS.md -->
 # ── L4: 切换 AI ──
-# @~/.ai-memory/global/USER.md
+<!-- inactive import: ~/.ai-memory/global/USER.md -->
+<!-- inactive import: ~/.ai-memory/global/TOOLS.md -->
 # Session 结束说 "更新 handoff"
 ```
 
 ### AGENTS.override.md (Codex CLI)
 
 ```markdown
-Read at start: ~/.ai-memory/projects/<PROJECT>/HANDOFF.md and TODO.md
+# AGENTS.override.md — AIM Bridge
+> generated from ~/.ai-memory/projects/<PROJECT>/LAYER_STATE.json
+
+## AIM: HANDOFF
+> source: ~/.ai-memory/projects/<PROJECT>/HANDOFF.md
+
+...
+
+## AIM: TODO
+> source: ~/.ai-memory/projects/<PROJECT>/TODO.md
+
+...
+
+## Protocol
 Update them at session end.
 ```
 

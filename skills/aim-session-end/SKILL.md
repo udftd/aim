@@ -13,10 +13,11 @@ You MUST have done actual work in this session before running this skill. If the
 
 ## Resolve Project
 
-1. Read `CLAUDE.local.md` in the current directory. Extract the AIM project name from the `@~/.ai-memory/projects/<PROJECT>/` paths.
-2. If no `CLAUDE.local.md` found, **default to `$(basename $PWD)`**.
-3. Set `$PD = ~/.ai-memory/projects/<project>` (or `$AI_MEMORY_ROOT/projects/<project>`).
-4. Verify `$PD` exists. If not, tell user to run `/aim-onboard` first.
+1. Read `AGENTS.override.md` in the current directory. If it contains a `generated from ~/.ai-memory/projects/<PROJECT>/` or `source: ~/.ai-memory/projects/<PROJECT>/` path, extract the AIM project name.
+2. If not found, read `CLAUDE.local.md` in the current directory and extract the AIM project name from the `@~/.ai-memory/projects/<PROJECT>/` paths.
+3. If neither bridge file identifies the project, **default to `$(basename $PWD)`**.
+4. Set `$PD = ~/.ai-memory/projects/<project>` (or `$AI_MEMORY_ROOT/projects/<project>`).
+5. Verify `$PD` exists. If not, tell user to run the aim-onboard workflow first.
 
 ## Resolve AIM bin path
 
@@ -24,7 +25,7 @@ Find the AIM scripts directory. Check in order, use the first that exists:
 1. `~/.ai-memory/bin/` — standard install location
 2. Run `which aim-init.sh` — if it's on PATH
 
-If neither works, tell the user: "AIM scripts not found. Run `/aim-onboard` first."
+If neither works, tell the user: "AIM scripts not found. Run the aim-onboard workflow first."
 
 Store the resolved directory as `$AIM_BIN`.
 
@@ -38,12 +39,12 @@ Follow these steps in order:
 
 - **< 40 lines, < 600 tokens**
 - **State only, no process details**
-- Use the current date and your AI tool name
+- Use the current date and your AI tool name (`claude-code`, `codex`, or equivalent)
 
 ```markdown
 # Handoff — <project>
 
-> updated: YYYY-MM-DD HH:MM | by: claude-code | module: <current module or N/A>
+> updated: YYYY-MM-DD HH:MM | by: <ai-tool-name> | module: <current module or N/A>
 
 ## State: <one-line description of where we are>
 
@@ -87,7 +88,7 @@ Read `$PD/TODO.md`, then update:
 
 ---
 s: YYYY-MM-DD-HHMM
-ai: claude-code
+ai: <ai-tool-name>
 mod: <module or N/A>
 ---
 <1-3 line summary of what was done>
