@@ -4,6 +4,17 @@
 
 ---
 
+## 2026-04-03
+
+**做了什么**
+- 审查 aim-search.sh 搜索范围，确认默认模式已递归搜索 modules/ 但缺少专用过滤器
+- 为 aim-search.sh 添加 `--type modules` 支持，可只搜索 `modules/` 目录下的 .md 文件
+
+**未完成 / 待跟进**
+- 无
+
+---
+
 ## 2026-04-02
 
 **做了什么**
@@ -14,6 +25,7 @@
 - 简化 CLAUDE.local.md：去掉所有分层标签和 HTML 注释占位，只保留 `@HANDOFF.md` + `@TODO.md` + 激活模块的 `@CONTEXT.md` + 工作流指令
 - 模块切换由 `/aim-module` skill 管理，其他记忆文件靠 AI 按需 Read
 - 更新 README.md：简化分层加载段落，清理已完成 TODO
+- 更新 ~/workspace/projects 下 4 个项目的 CLAUDE.local.md 到新模板（kubernetes、openclaw、kubernetes-autoscaler、ffmpeg）
 
 **未完成 / 待跟进**
 - [ ] aim-bridge.sh 中 `has_layer`/`ACTIVE_LAYERS`/`LAYER_STATE.json` 相关代码可进一步清理（Codex 段的 `aim_loader.py render` 仍依赖）
